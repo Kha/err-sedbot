@@ -1,0 +1,6 @@
+[Core]
+Name = SedBot
+Module = sedBot
+ 
+[Documentation]
+Description = Execute simple sed substitute commands
