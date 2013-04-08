@@ -13,8 +13,14 @@ class SedBot(BotPlugin):
 	def callback_message(self, conn, mess):
 		if self.last_mess:
 			command = re.match('s/([^/]+)/([^/]*)/?', mess.getBody())
-			if command and command.group(1) in self.last_mess.getBody():
-				replaced = self.last_mess.getBody().replace(command.group(1), command.group(2))
-				reply = '{0} meant: "{1}"'.format(get_sender_username(self.last_mess), replaced)
-				self.send(mess.getFrom(), reply, message_type=mess.getType())
+			if command:
+				try:
+					(replaced, n) = re.subn(command.group(1), command.group(2), self.last_mess.getBody())
+				except Exception as e:
+					self.send(mess.getFrom(), "regex does not compute", message_type=mess.getType())
+					return
+
+				if n > 0:
+					reply = '{0} meant: "{1}"'.format(get_sender_username(self.last_mess), replaced)
+					self.send(mess.getFrom(), reply, message_type=mess.getType())
 		self.last_mess = mess
