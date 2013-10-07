@@ -4,3 +4,6 @@ Module = sedBot
  
 [Documentation]
 Description = Execute simple sed substitute commands
+
+[Python]
+Version=3

@@ -2,13 +2,14 @@
 # vim:noet:sw=4:ts=4
 
 import re
+import collections
 from errbot import BotPlugin, botcmd
 from errbot.utils import get_sender_username
 
 class SedBot(BotPlugin):
 	def __init__(self):
 		super(SedBot, self).__init__()
-		self.backlog = []
+		self.backlog = collections.defaultdict(list)
 
 	def configure(self, configuration):
 		super().configure(configuration)
@@ -26,7 +27,7 @@ class SedBot(BotPlugin):
 	def callback_message(self, conn, mess):
 		command = re.match('s/([^/]+)/([^/]*)/?', mess.getBody())
 		if command:
-			for old_mess in self.backlog:
+			for old_mess in self.backlog[conn]:
 				try:
 					(replaced, n) = re.subn(command.group(1), command.group(2), old_mess.getBody())
 				except Exception as e:
@@ -38,5 +39,4 @@ class SedBot(BotPlugin):
 					self.send(mess.getFrom(), reply, message_type=mess.getType())
 					return
 
-		self.backlog.insert(0, mess)
-		self.backlog = self.backlog[:self.config['BACKLOG_LENGTH']]
+		self.backlog[conn] = ([mess] + self.backlog[conn])[:self.config['BACKLOG_LENGTH']]
